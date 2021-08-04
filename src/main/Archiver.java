@@ -1,3 +1,7 @@
+package main;
+
+import comand.ExitCommand;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
@@ -13,5 +17,8 @@ public class Archiver {
         System.out.println("Enter full file name for archiving:");
         String fileName = reader.readLine();
         zipFileManager.createZip(Paths.get(fileName));
+
+        ExitCommand exitCommand = new ExitCommand();
+        exitCommand.execute();
     }
 }
