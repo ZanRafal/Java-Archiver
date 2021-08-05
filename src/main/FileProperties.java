@@ -1,5 +1,14 @@
 package main;
 
+/**********************
+ * Class responsible for keeping all file properties such as
+ * name
+ * size
+ * size after compression
+ * method of compression
+ * in one place and allows to display them.
+ */
+
 public class FileProperties {
     private String name;
     private long size;
