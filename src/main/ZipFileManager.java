@@ -1,13 +1,17 @@
 package main;
 
+import exception.NoSuchZipFileException;
 import exception.PathNotFoundException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class ZipFileManager {
@@ -54,6 +58,7 @@ public class ZipFileManager {
         }
     }
 
+    //method used to copy the data from input stream to output stream
     private void copyData(InputStream in, OutputStream out) throws Exception {
         byte[] buffer = new byte[8 * 1024];
         int length;
@@ -61,5 +66,29 @@ public class ZipFileManager {
         while ((length = in.read(buffer)) > 0 ){
             out.write(buffer, 0, length);
         }
+    }
+
+    //Method that returns list of the files in the archive
+    public List<FileProperties> getFileList() throws Exception {
+        if(!Files.isRegularFile(zipFile)) {
+            throw new NoSuchZipFileException();
+        }
+
+        List<FileProperties> filePropertiesList = new ArrayList<>();
+
+        try(ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(zipFile))) {
+          ZipEntry zipEntry = zipInputStream.getNextEntry();
+
+          while (zipEntry != null) {
+              ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+              copyData(zipInputStream, byteArrayOutputStream);
+
+              FileProperties file = new FileProperties(zipEntry.getName(), zipEntry.getSize(), zipEntry.getCompressedSize(), zipEntry.getMethod());
+              filePropertiesList.add(file);
+
+              zipEntry = zipInputStream.getNextEntry();
+          }
+        }
+        return filePropertiesList;
     }
 }
