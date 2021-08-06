@@ -14,9 +14,11 @@ public class ZipCreateCommand extends ZipCommand {
         try {
             ConsoleHelper.writeMessage("Creating an archive.");
             ZipFileManager zipFileManager = getZipFileManager();
+
             ConsoleHelper.writeMessage("Enter full path to the file or directory to be zipped.");
             Path path = Paths.get(ConsoleHelper.readString());
             zipFileManager.createZip(path);
+
             ConsoleHelper.writeMessage("Archive created.");
         } catch (PathNotFoundException exception) {
             ConsoleHelper.writeMessage("You didn't correctly enter a file name or directory.");
