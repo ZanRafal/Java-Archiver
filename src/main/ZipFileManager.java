@@ -24,6 +24,7 @@ public class ZipFileManager {
     public void createZip(Path source) throws Exception {
         Path zipDirectory = zipFile.getParent();
 
+        //creating new directory if zip directory does not exist
         if(Files.notExists(zipDirectory)) {
             Files.createDirectories(zipDirectory);
         }
@@ -70,6 +71,8 @@ public class ZipFileManager {
 
     //Method that returns list of the files in the archive
     public List<FileProperties> getFileList() throws Exception {
+
+        //checking if the zip file exists
         if(!Files.isRegularFile(zipFile)) {
             throw new NoSuchZipFileException();
         }
@@ -90,5 +93,45 @@ public class ZipFileManager {
           }
         }
         return filePropertiesList;
+    }
+
+    public void extractAll(Path outputFolder) throws Exception {
+
+        //checking if the zip file exists
+        if(!Files.isRegularFile(zipFile)) {
+            throw new NoSuchZipFileException();
+        }
+
+        try (ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(zipFile))) {
+
+            //if output folder does not exist create new one
+            if(Files.notExists(outputFolder)) {
+                Files.createDirectories(outputFolder);
+            }
+
+            //Going through the contents of the zip stream
+            ZipEntry zipEntry = zipInputStream.getNextEntry();
+
+            while (zipEntry != null) {
+                //Relative path inside of the archive. Name of the file
+                String fileName = zipEntry.getName();
+                //Some files may be inside folders so we need to resolve the correct path
+                Path fileFullName = outputFolder.resolve(fileName);
+
+                //Creating necessary directories
+                Path parentPath = fileFullName.getParent();
+
+                //checking whether parent file exists, if not than create new dir.
+                if(Files.notExists(parentPath)) {
+                    Files.createDirectories(parentPath);
+                }
+
+                try (OutputStream outputStream = Files.newOutputStream(fileFullName)) {
+                    copyData(zipInputStream, outputStream);
+                }
+
+                zipEntry = zipInputStream.getNextEntry();
+            }
+        }
     }
 }
