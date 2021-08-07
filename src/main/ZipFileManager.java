@@ -8,7 +8,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -134,4 +137,45 @@ public class ZipFileManager {
             }
         }
     }
+
+    public void removeFiles(List<Path> pathList) throws Exception {
+
+        //checking if the zip file exists
+        if(!Files.isRegularFile(zipFile)) {
+            throw new NoSuchZipFileException();
+        }
+
+        //Creating temporary file
+        Path tempFile = Files.createTempFile(null, null);
+
+        try(ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(tempFile))) {
+            try(ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(zipFile))) {
+
+                ZipEntry zipEntry = zipInputStream.getNextEntry();
+
+                while (zipEntry != null) {
+
+                    Path archivedFile = Paths.get(zipEntry.getName());
+
+                    if(pathList.contains(archivedFile)) {
+                        String fileName = zipEntry.getName();
+                        zipOutputStream.putNextEntry(new ZipEntry(fileName));
+
+                        copyData(zipInputStream, zipOutputStream);
+
+                        zipOutputStream.closeEntry();
+                        zipInputStream.closeEntry();
+                    } else {
+                        ConsoleHelper.writeMessage(String.format("File '%s' was removed from the archive.", archivedFile.toString()));
+                    }
+
+                    zipEntry = zipInputStream.getNextEntry();
+                }
+            }
+        }
+
+        //Move temporary archive to the location of the original
+        Files.move(tempFile, zipFile, StandardCopyOption.REPLACE_EXISTING);
+    }
+
 }
