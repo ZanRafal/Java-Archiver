@@ -178,4 +178,8 @@ public class ZipFileManager {
         Files.move(tempFile, zipFile, StandardCopyOption.REPLACE_EXISTING);
     }
 
+    public void removeFile(Path path) throws Exception {
+        removeFiles(Collections.singletonList(path));
+    }
+
 }
