@@ -226,5 +226,7 @@ public class ZipFileManager {
         }
     }
 
-    
+    public void addFile(Path absolutePath) throws Exception {
+        addFiles(Collections.singletonList(absolutePath));
+    }
 }
