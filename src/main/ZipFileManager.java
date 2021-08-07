@@ -157,7 +157,7 @@ public class ZipFileManager {
 
                     Path archivedFile = Paths.get(zipEntry.getName());
 
-                    if(pathList.contains(archivedFile)) {
+                    if(!pathList.contains(archivedFile)) {
                         String fileName = zipEntry.getName();
                         zipOutputStream.putNextEntry(new ZipEntry(fileName));
 
@@ -168,7 +168,6 @@ public class ZipFileManager {
                     } else {
                         ConsoleHelper.writeMessage(String.format("File '%s' was removed from the archive.", archivedFile.toString()));
                     }
-
                     zipEntry = zipInputStream.getNextEntry();
                 }
             }
